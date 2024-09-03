@@ -1,6 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import repairRecords from "../repairsData.json";
-import { authVerify } from "./authVerify";
+import { authMiddleware } from "./authMiddleware";
 
 /**  
  * This function handles the HTTP request and returns the repair information.  
@@ -46,11 +46,12 @@ app.http("repairs", {
   methods: ["GET"],
   authLevel: "anonymous",
   handler: async (req: HttpRequest, context: InvocationContext) => {
-    // verify auth  
-    const authResult = await authVerify(req, context);
+    // Call the authorization middleware
+    const authResult = await authMiddleware(req, context);
     if (authResult) {
       return authResult;
     }
+    // Call the actual handler function
     return repairs(req, context);
   },
 });  
